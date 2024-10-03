@@ -1,25 +1,46 @@
-import { useState } from 'react'
+import {
+  useState,
+  useEffect 
+} from 'react'
 
 function App() {
 
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   console.log('component rendered');
+  useEffect(() => {
+    setIsLoading(true);
+    setIsError(false);
+    fetch('https://jsonplaceholder.typicode.com/users')
 
-  fetch('https://jsonplaceholder.typicode.com/users')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Err')
+        }
 
-    .then(response => response.json())
+        return response.json();
+      })
 
-    .then(data => {
-      console.log(data);
-      setUsers(data);
-    });
+      .then(data => {
+        console.log(data);
+        setUsers([data]);
+        setIsLoading(false);
+    })
 
-//    .catch(error => console.log(error));
+    .catch(error => {
+      console.log(error);
+      setIsLoading(false);
+      setIsError(true)});
+  }, [])
+
 
   return (
     <div>
-      { JSON.stringify(users[0])}
+      { isError ? 'Ошибка' : ''}
+      { isLoading ? 'загрузка' : '' }
+      { users ? JSON.stringify(users) : '' }
     </div>
   )
 }
